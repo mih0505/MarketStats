@@ -68,6 +68,21 @@ public class MainViewModel : BaseViewModel
     public ObservableCollection<MinuteBar> RecentBars { get; } = new();
 
     /// <summary>
+    /// Все минутные бары текущего дня в хронологическом порядке (для построения графиков).
+    /// </summary>
+    public ObservableCollection<MinuteBar> AllDayBars { get; } = new();
+
+    /// <summary>
+    /// Горизонтальные уровни профиля объема (Volume Profile) с выделением POC.
+    /// </summary>
+    public ObservableCollection<VolumeProfileLevel> VolumeProfileLevels { get; } = new();
+
+    /// <summary>
+    /// Исторические бенчмарки времени суток (для графика темпа дня).
+    /// </summary>
+    public Dictionary<string, IntradayBenchmark> BenchmarksDictionary => _loadedBenchmarks;
+
+    /// <summary>
     /// Команда принудительного обновления аналитики.
     /// </summary>
     public ICommand RefreshCommand { get; }
@@ -483,6 +498,16 @@ public class MainViewModel : BaseViewModel
                     }
                 }
 
+                // Обновление живого бара для графика
+                if (AllDayBars.Count > 0 && AllDayBars[^1].Time == liveBar.Time)
+                {
+                    AllDayBars[^1] = liveBar;
+                }
+                else
+                {
+                    AllDayBars.Add(liveBar);
+                }
+
                 // Пересчет VSA и прогноза на лету с учетом тиков текущей минуты
                 var combined = new List<MinuteBar>(_loadedDbBars);
                 if (combined[^1].Time == liveBar.Time) combined[^1] = liveBar;
@@ -520,6 +545,7 @@ public class MainViewModel : BaseViewModel
 
             var effort = _analyticsService.EvaluateEffortVsResult(bars, benchmarks);
             var (shortFcast, medFcast) = _analyticsService.GenerateDualForecast(bars, SelectedSecCode, SelectedSession, effort);
+            var profile = _analyticsService.CalculateVolumeProfile(bars);
 
             Application.Current?.Dispatcher.Invoke(() =>
             {
@@ -527,6 +553,14 @@ public class MainViewModel : BaseViewModel
                 ForecastShort = shortFcast;
                 ForecastMedium = medFcast;
                 DailyBenchmark = dailyBm;
+
+                AllDayBars.Clear();
+                foreach (var b in bars) AllDayBars.Add(b);
+
+                VolumeProfileLevels.Clear();
+                foreach (var p in profile) VolumeProfileLevels.Add(p);
+
+                OnPropertyChanged(nameof(BenchmarksDictionary));
 
                 if (bars.Count > 0)
                 {

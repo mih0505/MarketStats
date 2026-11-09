@@ -112,6 +112,63 @@ public class MarketAnalyticsService
     }
 
     /// <summary>
+    /// Рассчитывает горизонтальный профиль объема (Volume Profile) за текущую сессию:
+    /// группирует проторгованный объем по ценовым ступеням и находит Point of Control (POC).
+    /// </summary>
+    public List<VolumeProfileLevel> CalculateVolumeProfile(List<MinuteBar> bars, double priceStep = 0.1)
+    {
+        var result = new List<VolumeProfileLevel>();
+        if (bars.Count == 0) return result;
+
+        double minPrice = bars.Min(b => b.Low);
+        double maxPrice = bars.Max(b => b.High);
+        if (maxPrice <= minPrice) return result;
+
+        double effectiveStep = priceStep > 0 ? priceStep : 0.1;
+        double range = maxPrice - minPrice;
+        if (range / effectiveStep > 80)
+        {
+            effectiveStep = Math.Ceiling((range / 60) * 10) / 10.0;
+            if (effectiveStep <= 0) effectiveStep = 0.5;
+        }
+
+        var buckets = new Dictionary<double, double>();
+
+        foreach (var bar in bars)
+        {
+            if (bar.Volume <= 0) continue;
+
+            double bLow = Math.Floor(bar.Low / effectiveStep) * effectiveStep;
+            double bHigh = Math.Ceiling(bar.High / effectiveStep) * effectiveStep;
+            int steps = Math.Max(1, (int)Math.Round((bHigh - bLow) / effectiveStep) + 1);
+            double volPerStep = bar.Volume / steps;
+
+            for (double p = bLow; p <= bHigh + 0.00001; p += effectiveStep)
+            {
+                double key = Math.Round(p, 2);
+                buckets[key] = buckets.GetValueOrDefault(key, 0.0) + volPerStep;
+            }
+        }
+
+        if (buckets.Count == 0) return result;
+
+        double maxVol = buckets.Values.Max();
+
+        foreach (var kvp in buckets.OrderByDescending(k => k.Key))
+        {
+            result.Add(new VolumeProfileLevel
+            {
+                Price = kvp.Key,
+                Volume = Math.Round(kvp.Value, 0),
+                IsPOC = Math.Abs(kvp.Value - maxVol) < 0.0001,
+                RelativeWidth = maxVol > 0 ? (kvp.Value / maxVol) : 0
+            });
+        }
+
+        return result;
+    }
+
+    /// <summary>
     /// Оценивает текущее рыночное состояние по закону «Усилие против Результата» (VSA):
     /// сопоставляет аномалии объема (усилие) с продвижением цены (результат) за последние 5 минут.
     /// Определяет поглощение (скрытый лимитный игрок), истинный импульс, истощение или тонкий рынок.

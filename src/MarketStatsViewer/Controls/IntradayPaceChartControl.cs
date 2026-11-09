@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using MarketStatsViewer.Models;
 
@@ -11,6 +12,7 @@ namespace MarketStatsViewer.Controls;
 /// <summary>
 /// График темпа дня (Intraday Pace Chart):
 /// Сравнивает фактическую кривую накопления объема сегодня с эталонной исторической кривой среднего дня.
+/// Поддерживает интерактивное перекрестие и всплывающий тултип точки.
 /// </summary>
 public class IntradayPaceChartControl : FrameworkElement
 {
@@ -46,13 +48,25 @@ public class IntradayPaceChartControl : FrameworkElement
         DashStyle = DashStyles.Dash
     };
 
+    private static readonly Pen CrosshairPen = new(new SolidColorBrush(Color.FromArgb(140, 255, 255, 255)), 1.0)
+    {
+        DashStyle = DashStyles.Dot
+    };
+
     private static readonly FontFamily ChartFontFamily = new("Segoe UI");
     private static readonly Typeface RegularTypeface = new(ChartFontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
     private static readonly Typeface BoldTypeface = new(ChartFontFamily, FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);
+    private static readonly Typeface SemiBoldTypeface = new(ChartFontFamily, FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal);
+
+    private Point? _mousePos;
 
     public IntradayPaceChartControl()
     {
         ClipToBounds = true;
+        Cursor = Cursors.Cross;
+
+        MouseMove += (s, e) => { _mousePos = e.GetPosition(this); InvalidateVisual(); };
+        MouseLeave += (s, e) => { _mousePos = null; InvalidateVisual(); };
     }
 
     protected override void OnRender(DrawingContext dc)
@@ -114,6 +128,9 @@ public class IntradayPaceChartControl : FrameworkElement
         var normPoints = new List<Point>();
 
         double stepX = plotW / Math.Max(1, barList.Count - 1);
+        MinuteBar? hoveredBar = null;
+        Point? hoveredTodayPoint = null;
+        double hoveredNormVol = 0;
 
         for (int i = 0; i < barList.Count; i++)
         {
@@ -122,13 +139,23 @@ public class IntradayPaceChartControl : FrameworkElement
 
             // Сегодня
             double yToday = marginT + plotH - (b.CumulativeVolume / maxY) * plotH;
-            todayPoints.Add(new Point(x, yToday));
+            var ptToday = new Point(x, yToday);
+            todayPoints.Add(ptToday);
 
             // Норма
+            double curNorm = 0;
             if (Benchmarks != null && Benchmarks.TryGetValue(b.Time, out var bm) && bm.AvgCumulativeVolume > 0)
             {
+                curNorm = bm.AvgCumulativeVolume;
                 double yNorm = marginT + plotH - (bm.AvgCumulativeVolume / maxY) * plotH;
                 normPoints.Add(new Point(x, yNorm));
+            }
+
+            if (_mousePos.HasValue && Math.Abs(_mousePos.Value.X - x) <= stepX / 2.0)
+            {
+                hoveredBar = b;
+                hoveredTodayPoint = ptToday;
+                hoveredNormVol = curNorm;
             }
         }
 
@@ -152,5 +179,27 @@ public class IntradayPaceChartControl : FrameworkElement
         var endTxt = new FormattedText(barList[^1].ShortTime, InvCulture, FlowDirection.LeftToRight,
             RegularTypeface, 9, TextBrush, VisualTreeHelper.GetDpi(this).PixelsPerDip);
         dc.DrawText(endTxt, new Point(marginL + plotW - endTxt.Width, h - marginB + 3));
+
+        // Интерактивный тултип при наведении
+        if (hoveredBar != null && hoveredTodayPoint.HasValue)
+        {
+            dc.DrawLine(CrosshairPen, new Point(hoveredTodayPoint.Value.X, marginT), new Point(hoveredTodayPoint.Value.X, marginT + plotH));
+            dc.DrawEllipse(new SolidColorBrush(Color.FromRgb(56, 189, 248)), new Pen(Brushes.White, 1.5), hoveredTodayPoint.Value, 4, 4);
+
+            double diff = hoveredNormVol > 0 ? ((hoveredBar.CumulativeVolume - hoveredNormVol) / hoveredNormVol) * 100.0 : 0;
+            string diffSign = diff >= 0 ? "+" : "";
+
+            var tipText = new FormattedText(
+                $"[{hoveredBar.Time}] Сегодня: {hoveredBar.CumulativeVolume:N0} к. | Норма: {hoveredNormVol:N0} к. ({diffSign}{diff:F0}%)",
+                InvCulture, FlowDirection.LeftToRight,
+                SemiBoldTypeface, 10, Brushes.White, VisualTreeHelper.GetDpi(this).PixelsPerDip);
+
+            double tipX = Math.Clamp(hoveredTodayPoint.Value.X + 8, marginL, marginL + plotW - tipText.Width - 14);
+            double tipY = Math.Clamp(hoveredTodayPoint.Value.Y - 24, marginT, marginT + plotH - tipText.Height - 6);
+
+            dc.DrawRectangle(new SolidColorBrush(Color.FromArgb(220, 30, 41, 59)), new Pen(new SolidColorBrush(Color.FromRgb(71, 85, 105)), 1),
+                new Rect(tipX, tipY, tipText.Width + 12, tipText.Height + 6));
+            dc.DrawText(tipText, new Point(tipX + 6, tipY + 3));
+        }
     }
 }

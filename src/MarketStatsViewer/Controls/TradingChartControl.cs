@@ -119,7 +119,7 @@ public class TradingChartControl : FrameworkElement
 
         // Разметка областей
         double rightAxisWidth = 65;
-        double profileWidth = 100;
+        double profileWidth = 140;
         double bottomAxisHeight = 22;
 
         double chartWidth = Math.Max(20, w - rightAxisWidth - profileWidth - 10);
@@ -301,22 +301,24 @@ public class TradingChartControl : FrameworkElement
             BoldTypeface, 9, TextBrush, VisualTreeHelper.GetDpi(this).PixelsPerDip);
         dc.DrawText(title, new Point(left, 4));
 
+        double maxBarLen = width - 38; // Оставляем 38px справа под полную подпись POC
+
         foreach (var lvl in prof)
         {
             if (lvl.Price < minPrice || lvl.Price > maxPrice) continue;
 
             double y = height - ((lvl.Price - minPrice) / priceRange) * height;
-            double barLen = Math.Max(2.0, lvl.RelativeWidth * (width - 15));
+            double barLen = Math.Max(2.0, lvl.RelativeWidth * maxBarLen);
 
             var brush = lvl.IsPOC ? PocBrush : ProfileBarBrush;
             dc.DrawRectangle(brush, null, new Rect(left, y - 2.5, barLen, 5.0));
 
-            // Выделение POC
+            // Выделение POC (с гарантированным свободным местом для надписи)
             if (lvl.IsPOC)
             {
                 var pocLabel = new FormattedText("POC", InvCulture, FlowDirection.LeftToRight,
                     BoldTypeface, 9, PocBrush, VisualTreeHelper.GetDpi(this).PixelsPerDip);
-                dc.DrawText(pocLabel, new Point(left + barLen + 4, y - pocLabel.Height / 2.0));
+                dc.DrawText(pocLabel, new Point(left + barLen + 5, y - pocLabel.Height / 2.0));
             }
         }
     }
@@ -337,7 +339,7 @@ public class TradingChartControl : FrameworkElement
 
     private void DrawBarTooltip(DrawingContext dc, MinuteBar b)
     {
-        // Плашка с краткой сводкой бара в левом верхнем углу
+        // 1. Верхняя сводная строка бара в левом верхнем углу
         string sign = b.PriceChange >= 0 ? "+" : "";
         string oiSign = (b.OpenInterestChange ?? 0) >= 0 ? "+" : "";
 
@@ -346,8 +348,47 @@ public class TradingChartControl : FrameworkElement
             InvCulture, FlowDirection.LeftToRight,
             SemiBoldTypeface, 11, Brushes.White, VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
-        dc.DrawRectangle(new SolidColorBrush(Color.FromArgb(200, 30, 41, 59)), new Pen(new SolidColorBrush(Color.FromRgb(51, 65, 85)), 1),
+        dc.DrawRectangle(new SolidColorBrush(Color.FromArgb(220, 30, 41, 59)), new Pen(new SolidColorBrush(Color.FromRgb(51, 65, 85)), 1),
             new Rect(8, 6, header.Width + 14, header.Height + 6));
         dc.DrawText(header, new Point(15, 9));
+
+        // 2. Всплывающее контекстное окно (Floating Tooltip) прямо рядом с курсором мыши
+        if (_mousePos.HasValue && _hoveredBar != null)
+        {
+            string vsaText = string.IsNullOrEmpty(b.EffortResultTag) ? "Баланс" : b.EffortResultTag;
+            string normText = b.BenchmarkAvgVolume.HasValue ? $"{b.BenchmarkAvgVolume:N0}" : "—";
+            string tradesText = $"{b.TradesCount} (чек: {b.AvgTradeSize:F2})";
+
+            string tooltipContent =
+                $"⏰ Минута: {b.Time}\n" +
+                $"💵 Close: {b.Close:F1} (размах: {b.PriceRange:F1} п.)\n" +
+                $"📊 Объем: {b.Volume:N0} к. (RVol: {b.RVol:F2}x | норма: {normText})\n" +
+                $"🤝 Сделки: {tradesText}\n" +
+                $"🎯 VSA: {vsaText}\n" +
+                $"📈 Дельта ОИ: {oiSign}{b.OpenInterestChange:F0} к.\n" +
+                $"⚖️ VWAP дня: {b.VWAP:F1}";
+
+            var ft = new FormattedText(
+                tooltipContent,
+                InvCulture, FlowDirection.LeftToRight,
+                RegularTypeface, 10, Brushes.White, VisualTreeHelper.GetDpi(this).PixelsPerDip);
+
+            double tipW = ft.Width + 16;
+            double tipH = ft.Height + 14;
+
+            // Позиционируем плашку правее или левее курсора, чтобы она не вылезала за края
+            double tx = _mousePos.Value.X + 15;
+            if (tx + tipW > ActualWidth - 70)
+            {
+                tx = _mousePos.Value.X - tipW - 15;
+            }
+
+            double ty = Math.Clamp(_mousePos.Value.Y - 20, 35, ActualHeight - tipH - 25);
+
+            // Тень и рамка тултипа
+            dc.DrawRoundedRectangle(new SolidColorBrush(Color.FromArgb(240, 15, 23, 42)), new Pen(new SolidColorBrush(Color.FromRgb(56, 189, 248)), 1.2),
+                new Rect(tx, ty, tipW, tipH), 6, 6);
+            dc.DrawText(ft, new Point(tx + 8, ty + 7));
+        }
     }
 }

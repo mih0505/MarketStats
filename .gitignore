@@ -1,0 +1,17 @@
+# Build and Output
+[Bb]in/
+[Oo]bj/
+App/
+*.user
+*.suo
+.vs/
+.vscode/
+
+# SQLite Database & Cache
+*.db
+*.db-wal
+*.db-shm
+*.log
+
+# Large Raw Trade Sessions (Data files from QUIK)
+Sessions/

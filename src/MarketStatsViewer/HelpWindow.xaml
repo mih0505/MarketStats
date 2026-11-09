@@ -1,0 +1,433 @@
+<Window x:Class="MarketStatsViewer.HelpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Справочник и иллюстрированное руководство пользователя - MarketStats" 
+        Height="880" Width="1160"
+        MinHeight="650" MinWidth="850"
+        Background="#0F172A"
+        Foreground="#F8FAFC"
+        FontFamily="Segoe UI"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <Style x:Key="SectionBorder" TargetType="Border">
+            <Setter Property="Background" Value="#1E293B" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="BorderBrush" Value="#334155" />
+            <Setter Property="BorderThickness" Value="1.5" />
+            <Setter Property="Padding" Value="20" />
+            <Setter Property="Margin" Value="0,0,0,24" />
+        </Style>
+
+        <Style x:Key="ImageContainerBorder" TargetType="Border">
+            <Setter Property="Background" Value="#0B1329" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="BorderBrush" Value="#475569" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="Margin" Value="0,10,0,16" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+        </Style>
+
+        <Style x:Key="SubSectionHeader" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FBBF24" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Margin" Value="0,10,0,6" />
+        </Style>
+
+        <Style x:Key="BodyText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#CBD5E1" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="LineHeight" Value="18" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+        </Style>
+
+        <Style x:Key="NavButton" TargetType="Button">
+            <Setter Property="Background" Value="#1E293B" />
+            <Setter Property="Foreground" Value="#CBD5E1" />
+            <Setter Property="BorderBrush" Value="#334155" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="Margin" Value="0,2" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+
+        <Style TargetType="ScrollBar">
+            <Setter Property="Background" Value="#1E293B" />
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />  <!-- Header -->
+            <RowDefinition Height="*" />     <!-- Body (Sidebar + Content) -->
+        </Grid.RowDefinitions>
+
+        <!-- TOP HEADER -->
+        <Border Grid.Row="0" Background="#1E293B" CornerRadius="8" Padding="18,12" Margin="0,0,0,14" BorderBrush="#38BDF8" BorderThickness="1.5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📖" FontSize="20" Margin="0,0,8,0" VerticalAlignment="Center" />
+                        <TextBlock Text="ПОЛНОЕ РУКОВОДСТВО ПОЛЬЗОВАТЕЛЯ" FontSize="18" FontWeight="Bold" Foreground="#38BDF8" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Text="Детальный разбор каждого блока рабочего окна с иллюстрациями, расшифровкой всех состояний и практическими рекомендациями для торговли." 
+                               Foreground="#94A3B8" FontSize="12" Margin="0,4,0,0" />
+                </StackPanel>
+                <Button Grid.Column="1" Content="✕ Закрыть окно" Click="CloseButton_Click" 
+                        Height="32" Padding="16,0" Background="#334155" Foreground="#F8FAFC" BorderBrush="#475569" Cursor="Hand" FontWeight="SemiBold" VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+
+        <!-- MAIN BODY: SIDEBAR + SCROLLABLE CONTENT -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="240" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT QUICK NAVIGATION SIDEBAR -->
+            <Border Grid.Column="0" Background="#0F172A" CornerRadius="8" Padding="8" Margin="0,0,12,0" BorderBrush="#334155" BorderThickness="1">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="БЫСТРЫЙ ПЕРЕХОД ПО БЛОКАМ" FontSize="11" FontWeight="Bold" Foreground="#94A3B8" Margin="8,4,0,8" />
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <Button Content="1. Верхняя панель (Шапка)" Style="{StaticResource NavButton}" Click="Nav1_Click" />
+                            <Button Content="2. Последняя цена и VWAP" Style="{StaticResource NavButton}" Click="Nav2_Click" />
+                            <Button Content="3. Дневной объем и RVol" Style="{StaticResource NavButton}" Click="Nav3_Click" />
+                            <Button Content="4. Сделки и средний чек" Style="{StaticResource NavButton}" Click="Nav4_Click" />
+                            <Button Content="5. Открытый интерес (ОИ)" Style="{StaticResource NavButton}" Click="Nav5_Click" />
+                            <Button Content="6. Текущий RVol минуты" Style="{StaticResource NavButton}" Click="Nav6_Click" />
+                            <Button Content="7. VSA: Усилие/Результат" Style="{StaticResource NavButton}" Click="Nav7_Click" />
+                            <Button Content="8. Прогноз 5–15 минут" Style="{StaticResource NavButton}" Click="Nav8_Click" />
+                            <Button Content="9. Прогноз 30–60 минут" Style="{StaticResource NavButton}" Click="Nav9_Click" />
+                            <Button Content="10. Таблица минутных баров" Style="{StaticResource NavButton}" Click="Nav10_Click" />
+                            <Button Content="11. Золотые правила торговли" Style="{StaticResource NavButton}" Click="Nav11_Click" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <!-- RIGHT SCROLLABLE DOCUMENTATION -->
+            <ScrollViewer Grid.Column="1" x:Name="ContentScrollViewer" VerticalScrollBarVisibility="Auto" Padding="0,0,8,0">
+                <StackPanel>
+
+                    <!-- SECTION 1: TOP PANEL -->
+                    <Border x:Name="Sec1" Style="{StaticResource SectionBorder}">
+                        <StackPanel>
+                            <TextBlock Text="1. ВЕРХНЯЯ ПАНЕЛЬ УПРАВЛЕНИЯ (ШАПКА)" FontSize="16" FontWeight="Bold" Foreground="#38BDF8" />
+                            
+                            <!-- Image -->
+                            <Border Style="{StaticResource ImageContainerBorder}">
+                                <Image x:Name="ImgTopPanel" MaxHeight="90" Stretch="Uniform" />
+                            </Border>
+
+                            <TextBlock Text="Что здесь изображено (для новичка):" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                Это панель подключения и выбора данных. Здесь настраивается, за каким именно биржевым фьючерсом вы наблюдаете и какую сессию исследуете.
+                            </TextBlock>
+
+                            <TextBlock Text="Элементы и возможные варианты:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                • <Run FontWeight="Bold" Foreground="#F8FAFC">Инструмент (ComboBox):</Run> список доступных контрактов. По умолчанию выбран <Run Foreground="#38BDF8" FontWeight="Bold">GDZ6</Run> (фьючерс на золото). При клике можно выбрать нефть (BRX6), доллар (SiZ6), юань (CRZ6), серебро (SVZ6) и др.<LineBreak/>
+                                • <Run FontWeight="Bold" Foreground="#F8FAFC">Сессия (ComboBox):</Run> папка сбора данных. По умолчанию выбрана текущая живая сессия. Можно выбрать любую прошлую дату, чтобы изучить торги в записи.<LineBreak/>
+                                • <Run FontWeight="Bold" Foreground="#10B981">Индикатор LIVE ПОТОК:</Run> горит зеленым — значит, программа подключена к QUIK и непрерывно принимает свежие сделки каждые 2 секунды.<LineBreak/>
+                                • <Run FontWeight="Bold" Foreground="#F8FAFC">Кнопки:</Run> «Обновить» (пересчитывает аналитику) и «Пересканировать базу» (проверяет появление новых папок на диске).
+                            </TextBlock>
+
+                            <TextBlock Text="Как это помогает при торговле:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                Позволяет мгновенно сравнить золото со смежными активами (например, если золото растет, а доллар или юань падает — это реальное движение золота, а не валютная переоценка). На выходных и после закрытия биржи можно выбирать прошлые дни и тренироваться находить моменты крупных входов.
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- SECTION 2: LAST PRICE & VWAP -->
+                    <Border x:Name="Sec2" Style="{StaticResource SectionBorder}">
+                        <StackPanel>
+                            <TextBlock Text="2. КАРТОЧКА «ПОСЛЕДНЯЯ ЦЕНА (CLOSE) И VWAP»" FontSize="16" FontWeight="Bold" Foreground="#38BDF8" />
+
+                            <!-- Image -->
+                            <Border Style="{StaticResource ImageContainerBorder}">
+                                <Image x:Name="ImgPrice" MaxHeight="110" Stretch="Uniform" />
+                            </Border>
+
+                            <TextBlock Text="Что здесь изображено:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                Крупная цифра показывает текущую цену последней совершенной сделки на бирже (обновляется каждые 2 секунды). Рядом указано изменение цены от утреннего открытия сессии в пунктах, а внизу — значение VWAP.
+                            </TextBlock>
+
+                            <TextBlock Text="Все возможные варианты:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                • <Run Foreground="#10B981" FontWeight="Bold">+X.X (зеленый):</Run> цена находится выше цены открытия сессии (день в плюсе).<LineBreak/>
+                                • <Run Foreground="#EF4444" FontWeight="Bold">-X.X (красный):</Run> цена ниже цены открытия (день в минусе).<LineBreak/>
+                                • <Run Foreground="#38BDF8" FontWeight="Bold">VWAP дня (Volume Weighted Average Price):</Run> средневзвешенная цена по объему. Это реальная средняя цена, по которой покупали и продавали крупные фонды с начала дня.
+                            </TextBlock>
+
+                            <TextBlock Text="Как это помогает при торговле:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                • <Run Foreground="#10B981" FontWeight="Bold">Правило VWAP №1:</Run> Если текущая цена находится <Run Foreground="#10B981">выше VWAP</Run> — преимущество дня у покупателей. Безопаснее искать сделки в покупку (лонг). Продавать против VWAP крайне рискованно.<LineBreak/>
+                                • <Run Foreground="#EF4444" FontWeight="Bold">Правило VWAP №2:</Run> Если текущая цена <Run Foreground="#EF4444">ниже VWAP</Run> — день контролируют продавцы. Любые отскоки вверх к линии VWAP стоит рассматривать как возможность для продажи (шорт).
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- SECTION 3: DAY VOLUME & RVOL -->
+                    <Border x:Name="Sec3" Style="{StaticResource SectionBorder}">
+                        <StackPanel>
+                            <TextBlock Text="3. КАРТОЧКА «ДНЕВНОЙ ОБЪЕМ (VOL)»" FontSize="16" FontWeight="Bold" Foreground="#38BDF8" />
+
+                            <!-- Image -->
+                            <Border Style="{StaticResource ImageContainerBorder}">
+                                <Image x:Name="ImgVolume" MaxHeight="110" Stretch="Uniform" />
+                            </Border>
+
+                            <TextBlock Text="Что здесь изображено:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                Суммарный объем проторгованных контрактов с начала дня. Ниже расположена подсказка, сравнивающая этот объем с исторической нормой полного торгового дня и с нормой для текущего часа.
+                            </TextBlock>
+
+                            <TextBlock Text="Все возможные варианты и надписи:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                • <Run FontWeight="Bold" Foreground="#FBBF24">«Норма дня: 35,400 к. (42% проторговано)»</Run> — показывает процент выполнения среднего дневного плана.<LineBreak/>
+                                • <Run FontWeight="Bold" Foreground="#10B981">«К норме времени: +25%»</Run> — сегодня торгуют значительно активнее обычного для этого часа (в рынок пришли крупные деньги).<LineBreak/>
+                                • <Run FontWeight="Bold" Foreground="#94A3B8">«К норме времени: -30%»</Run> — активность понижена, рынок сонный.
+                            </TextBlock>
+
+                            <TextBlock Text="Как это помогает при торговле:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                • <Run FontWeight="Bold">Если объем опережает норму (+20% и выше):</Run> День трендовый. В рынке действуют крупные участники. Пробои уровней поддержки и сопротивления истинные и сильные, их можно смело брать в работу.<LineBreak/>
+                                • <Run FontWeight="Bold">Если объем отстает от нормы (-25% и ниже):</Run> День боковой/флэтовый. Любые попытки цены выскочить из диапазона окажутся ложными выносами. Не покупайте пробои — лучше торговать отскоки внутрь диапазона.
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- SECTION 4: TRADES & AVG SIZE -->
+                    <Border x:Name="Sec4" Style="{StaticResource SectionBorder}">
+                        <StackPanel>
+                            <TextBlock Text="4. КАРТОЧКА «СДЕЛКИ И СРЕДНИЙ РАЗМЕР»" FontSize="16" FontWeight="Bold" Foreground="#38BDF8" />
+
+                            <!-- Image -->
+                            <Border Style="{StaticResource ImageContainerBorder}">
+                                <Image x:Name="ImgContracts" MaxHeight="110" Stretch="Uniform" />
+                            </Border>
+
+                            <TextBlock Text="Что здесь изображено:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                Количество совершенных сделок и средний чек (число контрактов, проходящих в одной сделке). Сравнивается со среднеисторическим чеком по инструменту.
+                            </TextBlock>
+
+                            <TextBlock Text="Возможные варианты:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                • <Run FontWeight="Bold" Foreground="#10B981">«Ср. чек: 4.2 к./сд. (норма 2.8, +50%)»</Run> — сделки существенно крупнее обычного.<LineBreak/>
+                                • <Run FontWeight="Bold" Foreground="#94A3B8">«Ср. чек: 1.8 к./сд. (норма 2.8, -35%)»</Run> — преобладают мелкие ордера по 1-2 контракта.
+                            </TextBlock>
+
+                            <TextBlock Text="Как это помогает при торговле:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                Это детектор «умных денег»:
+                                • Крупные институциональные фонды и банки торгуют крупными блоками. Если средний чек резко подскочил вверх — движению можно верить, за ним стоит реальный капитал.
+                                • Если цена растет или падает, а средний чек упал до 1 контракта — это движение делает розничная толпа. Такое движение часто обрывается резким разворотом.
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- SECTION 5: OPEN INTEREST -->
+                    <Border x:Name="Sec5" Style="{StaticResource SectionBorder}">
+                        <StackPanel>
+                            <TextBlock Text="5. КАРТОЧКА «ИЗМЕНЕНИЕ ОТКРЫТОГО ИНТЕРЕСА (ОИ)»" FontSize="16" FontWeight="Bold" Foreground="#38BDF8" />
+
+                            <!-- Image -->
+                            <Border Style="{StaticResource ImageContainerBorder}">
+                                <Image x:Name="ImgOpenInterest" MaxHeight="110" Stretch="Uniform" />
+                            </Border>
+
+                            <TextBlock Text="Что это такое простыми словами:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                Открытый Интерес (Open Interest) — это количество действующих (незакрытых) фьючерсных контрактов. Когда трейдер покупает, а продавец продает в новую позицию — ОИ растет (+). Когда один из них закрывает позицию — ОИ падает (-).
+                            </TextBlock>
+
+                            <TextBlock Text="4 главных сценария в торговле (Шпаргалка трейдера):" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                1. <Run Foreground="#10B981" FontWeight="Bold">Цена РАСТЕТ + ОИ РАСТЕТ (+):</Run> Набор новых длинных позиций. В рынок вливаются свежие деньги на покупку. Самый здоровый и надежный восходящий тренд.<LineBreak/>
+                                2. <Run Foreground="#EF4444" FontWeight="Bold">Цена ПАДАЕТ + ОИ РАСТЕТ (+):</Run> Набор новых коротких позиций. Крупные игроки агрессивно открывают шорты. Сильный нисходящий тренд.<LineBreak/>
+                                3. <Run Foreground="#FBBF24" FontWeight="Bold">Цена РАСТЕТ + ОИ ПАДАЕТ (-):</Run> «Шортокрыл». Рост происходит не от притока покупателей, а из-за того, что ранее вошедшие продавцы закрывают шорты по стопам. Как только стопы закончатся, рост мгновенно захлебнется.<LineBreak/>
+                                4. <Run Foreground="#A855F7" FontWeight="Bold">Цена ПАДАЕТ + ОИ ПАДАЕТ (-):</Run> Ликвидация лонгов. Покупатели в панике сбрасывают позиции и режут убытки. Это часто признак завершения распродажи и близкого разворота вверх.
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- SECTION 6: CURRENT RVOL -->
+                    <Border x:Name="Sec6" Style="{StaticResource SectionBorder}">
+                        <StackPanel>
+                            <TextBlock Text="6. КАРТОЧКА «ТЕКУЩИЙ RVOL (ПОСЛЕДНЯЯ МИНУТА)»" FontSize="16" FontWeight="Bold" Foreground="#38BDF8" />
+
+                            <!-- Image -->
+                            <Border Style="{StaticResource ImageContainerBorder}">
+                                <Image x:Name="ImgRvolCurrent" MaxHeight="110" Stretch="Uniform" />
+                            </Border>
+
+                            <TextBlock Text="Что это такое:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                RVol (Relative Volume) — относительный объем. Показывает, во сколько раз объем именно за текущую минуту больше или меньше, чем в среднем в это же время суток на истории.
+                            </TextBlock>
+
+                            <TextBlock Text="Градация значений:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                • <Run Foreground="#94A3B8">Менее 0.7x:</Run> Пониженная активность, затишье перед бурей.<LineBreak/>
+                                • <Run Foreground="#F8FAFC">0.8x – 1.3x:</Run> Нормальный рыночный темп.<LineBreak/>
+                                • <Run Foreground="#38BDF8" FontWeight="Bold">1.5x – 2.2x:</Run> Заметный интерес участников (начало импульса).<LineBreak/>
+                                • <Run Foreground="#FBBF24" FontWeight="Bold">Выше 2.5x:</Run> Аномальный всплеск! Срочно смотрим на панель VSA: это либо мощный пробой, либо поглощение крупным игроком.
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- SECTION 7: VSA PANEL -->
+                    <Border x:Name="Sec7" Style="{StaticResource SectionBorder}">
+                        <StackPanel>
+                            <TextBlock Text="7. ПАНЕЛЬ VSA: ЗАКОН «УСИЛИЕ ПРОТИВ РЕЗУЛЬТАТА»" FontSize="16" FontWeight="Bold" Foreground="#38BDF8" />
+
+                            <!-- Image -->
+                            <Border Style="{StaticResource ImageContainerBorder}">
+                                <Image x:Name="ImgMiddlePanel" MaxHeight="90" Stretch="Uniform" />
+                            </Border>
+
+                            <TextBlock Text="Суть методики простыми словами:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                Закон Вайкоффа сопоставляет приложенный объем (усилие) с величиной сдвига цены (результатом). Если объем огромный, а цена почти не сдвинулась — значит, весь этот объем был поглощен скрытыми лимитными заявками крупного игрока.
+                            </TextBlock>
+
+                            <TextBlock Text="Все возможные статусы и руководство к действию:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                1. <Run Foreground="#10B981" FontWeight="Bold">🟩 Бычье поглощение продаж (Absorption Bullish):</Run><LineBreak/>
+                                Шел сильный поток продаж на аномальном объеме, но цена перестала падать и закрылась у верхушки бара. Крупный покупатель выставил скрытую лимитную стену и выкупил все предложение.<LineBreak/>
+                                <Run FontWeight="Bold" Foreground="#FBBF24">Что делать:</Run> Никаких шортов! Искать вход в лонг при подтверждении.<LineBreak/><LineBreak/>
+
+                                2. <Run Foreground="#EF4444" FontWeight="Bold">🟥 Медвежье поглощение спроса (Absorption Bearish):</Run><LineBreak/>
+                                На максимуме дня толпа жадно скупает актив, но цена закрывается на минимуме бара. Крупный продавец сбрасывает свою позицию в покупки толпы.<LineBreak/>
+                                <Run FontWeight="Bold" Foreground="#FBBF24">Что делать:</Run> Не покупать на вершине! Высокий риск ложного пробоя и падения.<LineBreak/><LineBreak/>
+
+                                3. <Run Foreground="#38BDF8" FontWeight="Bold">🟦 Истинный импульсный пробой (Breakout Confirmed):</Run><LineBreak/>
+                                Огромный объем сопровождается широким телом бара в сторону движения. Усилие подтверждено результатом.<LineBreak/>
+                                <Run FontWeight="Bold" Foreground="#FBBF24">Что делать:</Run> Входить по тренду пробоя.<LineBreak/><LineBreak/>
+
+                                4. <Run Foreground="#FB923C" FontWeight="Bold">🟧 Кульминация объема / Истощение (Climax Exhaustion):</Run><LineBreak/>
+                                Сверхвысокий объем на экстремуме дня, после чего на свече остался длинный хвост. Последние покупатели или продавцы впрыгнули в рынок, движение выдохлось.<LineBreak/>
+                                <Run FontWeight="Bold" Foreground="#FBBF24">Что делать:</Run> Срочно фиксировать прибыль, ожидать глубокого разворота.<LineBreak/><LineBreak/>
+
+                                5. <Run Foreground="#A855F7" FontWeight="Bold">🟪 Движение на слабом объеме (Low Volume Drift):</Run><LineBreak/>
+                                Цена куда-то ползет, но объемов нет (RVol ниже 0.6x). Тонкий рынок.<LineBreak/>
+                                <Run FontWeight="Bold" Foreground="#FBBF24">Что делать:</Run> Высокий риск ложного движения, пробои уровней не торговать.
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- SECTION 8: FORECAST 5-15 MIN -->
+                    <Border x:Name="Sec8" Style="{StaticResource SectionBorder}">
+                        <StackPanel>
+                            <TextBlock Text="8. СТОЛБЕЦ ПРОГНОЗА: ГОРИЗОНТ 5–15 МИНУТ" FontSize="16" FontWeight="Bold" Foreground="#38BDF8" />
+
+                            <!-- Image -->
+                            <Border Style="{StaticResource ImageContainerBorder}">
+                                <Image x:Name="ImgForecast515" MaxHeight="240" Stretch="Uniform" />
+                            </Border>
+
+                            <TextBlock Text="Назначение:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                Это тактический ориентир для выбора точки входа. Он оценивает, куда сдвинется цена в ближайшие 5–15 минут на основе микроструктуры (5-минутный моментум, VSA-поглощение, минутная дельта ОИ).
+                            </TextBlock>
+
+                            <TextBlock Text="Как читать индикаторы:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                • <Run Foreground="#10B981" FontWeight="Bold">ВВЕРХ ▲:</Run> покупатели обладают статистическим преимуществом (от +12% перевеса над продавцами).<LineBreak/>
+                                • <Run Foreground="#EF4444" FontWeight="Bold">ВНИЗ ▼:</Run> продавцы преобладают на ближайшие 5-15 минут.<LineBreak/>
+                                • <Run Foreground="#94A3B8" FontWeight="Bold">НЕЙТРАЛЬНО ▬:</Run> рынок во флэте, силы равны, явного перевеса нет.<LineBreak/>
+                                • <Run FontWeight="Bold" Foreground="#FBBF24">Шкалы вероятностей:</Run> зеленый (Вверх), красный (Вниз), серый (Флэт).<LineBreak/>
+                                • <Run FontWeight="Bold" Foreground="#FBBF24">Ожидаемый ход (например, ±2.5 п.):</Run> средний размер хода на этом горизонте (ориентир для короткого тейк-профита и стоп-лосса).
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- SECTION 9: FORECAST 30-60 MIN -->
+                    <Border x:Name="Sec9" Style="{StaticResource SectionBorder}">
+                        <StackPanel>
+                            <TextBlock Text="9. СТОЛБЕЦ ПРОГНОЗА: ГОРИЗОНТ 30–60 МИНУТ" FontSize="16" FontWeight="Bold" Foreground="#38BDF8" />
+
+                            <!-- Image -->
+                            <Border Style="{StaticResource ImageContainerBorder}">
+                                <Image x:Name="ImgForecast3060" MaxHeight="240" Stretch="Uniform" />
+                            </Border>
+
+                            <TextBlock Text="Назначение:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                Это стратегический ориентир для удержания позиции. Оценивает развитие тренда на ближайший час на основе 30-минутного тренда, положения цены относительно VWAP дня и накопленного притока капитала в Открытый Интерес.
+                            </TextBlock>
+
+                            <TextBlock Text="Золотое правило совмещения двух столбцов:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                • <Run Foreground="#10B981" FontWeight="Bold">Синхронный тренд (Максимальная надежность):</Run> Когда и на 5–15 мин, и на 30–60 мин горит <Run Foreground="#10B981" FontWeight="Bold">ВВЕРХ ▲</Run> (или оба <Run Foreground="#EF4444" FontWeight="Bold">ВНИЗ ▼</Run>) — оба горизонта согласованы. Это лучшая ситуация для входа в позицию по тренду.<LineBreak/>
+                                • <Run Foreground="#FBBF24" FontWeight="Bold">Вход на откате (Ювелирная точка):</Run> На 30–60 мин горит <Run Foreground="#10B981" FontWeight="Bold">ВВЕРХ ▲</Run>, а на 5–15 мин горит <Run Foreground="#94A3B8" FontWeight="Bold">НЕЙТРАЛЬНО</Run> или <Run Foreground="#EF4444" FontWeight="Bold">ВНИЗ</Run>. Это значит, что на часовом восходящем тренде идет мелкий откат. Как только 5–15 мин переключается обратно на рост — идеальный момент для входа в лонг с минимальным стопом!
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- SECTION 10: MINUTE FLOW TABLE -->
+                    <Border x:Name="Sec10" Style="{StaticResource SectionBorder}">
+                        <StackPanel>
+                            <TextBlock Text="10. ТАБЛИЦА ПОТОКА МИНУТНЫХ БАРОВ" FontSize="16" FontWeight="Bold" Foreground="#38BDF8" />
+
+                            <!-- Image -->
+                            <Border Style="{StaticResource ImageContainerBorder}">
+                                <Image x:Name="ImgTable" MaxHeight="160" Stretch="Uniform" />
+                            </Border>
+
+                            <TextBlock Text="Расшифровка колонок:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                • <Run FontWeight="Bold">ВРЕМЯ:</Run> минута свечи.<LineBreak/>
+                                • <Run FontWeight="Bold">OPEN / HIGH / LOW / CLOSE:</Run> классические цены свечи.<LineBreak/>
+                                • <Run FontWeight="Bold">ДИАПАЗОН:</Run> размах свечи в пунктах (High - Low).<LineBreak/>
+                                • <Run FontWeight="Bold">ОБЪЕМ:</Run> число проторгованных контрактов.<LineBreak/>
+                                • <Run FontWeight="Bold">НОРМА ВРЕМЕНИ:</Run> сколько обычно торгуется в эту минуту суток.<LineBreak/>
+                                • <Run FontWeight="Bold" Foreground="#38BDF8">RVOL:</Run> коэффициент превышения нормы (если > 1.5x — подсвечен голубым).<LineBreak/>
+                                • <Run FontWeight="Bold">СДЕЛКИ и СР. РАЗМЕР:</Run> активность и средний чек сделки.<LineBreak/>
+                                • <Run FontWeight="Bold">ОИ ДЕЛЬТА:</Run> сколько контрактов открыли (+) или закрыли (-) за эту минуту.<LineBreak/>
+                                • <Run FontWeight="Bold">VSA УСИЛИЕ / РЕЗУЛЬТАТ:</Run> экспресс-бейдж характера бара (Поглощение, Импульс, Баланс).
+                            </TextBlock>
+
+                            <TextBlock Text="Особенность верхней строки:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                Самая верхняя строка помечена как <Run Foreground="#38BDF8" FontWeight="Bold">LIVE ⏳ (формируется...)</Run>. Она обновляется каждые 2 секунды прямо по ходу текущей минуты, позволяя вам видеть активность крупного игрока еще до того, как минутная свеча закроется!
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- SECTION 11: GOLDEN RULES -->
+                    <Border x:Name="Sec11" Style="{StaticResource SectionBorder}" BorderBrush="#FBBF24">
+                        <StackPanel>
+                            <TextBlock Text="11. ЧЕК-ЛИСТ ДЛЯ СОВЕРШЕНИЯ СДЕЛКИ (ПРАВИЛА УСПЕХА)" FontSize="16" FontWeight="Bold" Foreground="#FBBF24" />
+                            <TextBlock Style="{StaticResource BodyText}" Margin="0,8,0,0">
+                                1. <Run FontWeight="Bold" Foreground="#F8FAFC">Определите общий фон дня:</Run> посмотрите на карточку Дневного объема. Если объем выше нормы времени (+20% и более) — торгуйте смело, тренд сильный. Если объем низкий — осторожно, рынок во флэте.<LineBreak/>
+                                2. <Run FontWeight="Bold" Foreground="#F8FAFC">Проверьте положение к VWAP:</Run> торгуйте преимущественно в ту сторону, где находится цена относительно линии VWAP дня.<LineBreak/>
+                                3. <Run FontWeight="Bold" Foreground="#F8FAFC">Следите за Открытым Интересом:</Run> движение на растущем ОИ — истинное. Движение на падающем ОИ — ложное (шортокрыл или сброс лонгов).<LineBreak/>
+                                4. <Run FontWeight="Bold" Foreground="#F8FAFC">Обращайте внимание на VSA-поглощения:</Run> если на поддержке загорелось «Бычье поглощение» — рынок защищают, падение окончено.<LineBreak/>
+                                5. <Run FontWeight="Bold" Foreground="#F8FAFC">Входите при согласии двух столбцов прогноза</Run> или при возобновлении тренда после отката!
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>

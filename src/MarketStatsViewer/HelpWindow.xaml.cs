@@ -28,6 +28,9 @@ public partial class HelpWindow : Window
         LoadImageSafe(ImgForecast515, "5-15min.png");
         LoadImageSafe(ImgForecast3060, "30-60min.png");
         LoadImageSafe(ImgTable, "table.png");
+        LoadImageSafe(ImgPriceChart, "price-graf.png");
+        LoadImageSafe(ImgPaceChart, "volume-graf.png");
+        LoadImageSafe(ImgOiChart, "open-interest-graf.png");
     }
 
     private static void LoadImageSafe(System.Windows.Controls.Image imgControl, string fileName)
@@ -93,4 +96,7 @@ public partial class HelpWindow : Window
     private void Nav9_Click(object sender, RoutedEventArgs e) => ScrollToElement(Sec9);
     private void Nav10_Click(object sender, RoutedEventArgs e) => ScrollToElement(Sec10);
     private void Nav11_Click(object sender, RoutedEventArgs e) => ScrollToElement(Sec11);
+    private void Nav12_Click(object sender, RoutedEventArgs e) => ScrollToElement(Sec12);
+    private void Nav13_Click(object sender, RoutedEventArgs e) => ScrollToElement(Sec13);
+    private void Nav14_Click(object sender, RoutedEventArgs e) => ScrollToElement(Sec14);
 }

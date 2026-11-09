@@ -113,7 +113,10 @@
                             <Button Content="8. Прогноз 5–15 минут" Style="{StaticResource NavButton}" Click="Nav8_Click" />
                             <Button Content="9. Прогноз 30–60 минут" Style="{StaticResource NavButton}" Click="Nav9_Click" />
                             <Button Content="10. Таблица минутных баров" Style="{StaticResource NavButton}" Click="Nav10_Click" />
-                            <Button Content="11. Золотые правила торговли" Style="{StaticResource NavButton}" Click="Nav11_Click" />
+                            <Button Content="11. Свечной график и Профиль" Style="{StaticResource NavButton}" Click="Nav12_Click" />
+                            <Button Content="12. График темпа дня" Style="{StaticResource NavButton}" Click="Nav13_Click" />
+                            <Button Content="13. График Открытого Интереса" Style="{StaticResource NavButton}" Click="Nav14_Click" />
+                            <Button Content="14. Золотые правила торговли" Style="{StaticResource NavButton}" Click="Nav11_Click" />
                         </StackPanel>
                     </ScrollViewer>
                 </DockPanel>
@@ -412,16 +415,115 @@
                         </StackPanel>
                     </Border>
 
+                    <!-- SECTION 12: CANDLESTICK CHART & VOLUME PROFILE -->
+                    <Border x:Name="Sec12" Style="{StaticResource SectionBorder}">
+                        <StackPanel>
+                            <TextBlock Text="11. ГЛАВНЫЙ СВЕЧНОЙ ГРАФИК, VWAP И ПРОФИЛЬ ОБЪЕМА ДНЯ" FontSize="16" FontWeight="Bold" Foreground="#38BDF8" />
+
+                            <!-- Image -->
+                            <Border Style="{StaticResource ImageContainerBorder}">
+                                <Image x:Name="ImgPriceChart" MaxHeight="280" Stretch="Uniform" />
+                            </Border>
+
+                            <TextBlock Text="Что здесь изображено и как устроена визуализация:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                Это основной рабочий экран для визуального чтения рынка. Он объединяет динамику цены, институциональную средневзвешенную цену (VWAP), побарный объем с VSA-раскраской и горизонтальное распределение объемов по ценовым уровням (Volume Profile).
+                            </TextBlock>
+
+                            <TextBlock Text="Расшифровка всех элементов графика:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                • <Run Foreground="#10B981" FontWeight="Bold">Японские свечи (зеленые и красные):</Run> отображают движение цены по минутам с фитилями максимумов и минимумов.<LineBreak/>
+                                • <Run Foreground="#38BDF8" FontWeight="Bold">Сплошная бирюзовая линия (VWAP дня):</Run> средневзвешенная цена по объему. Служит динамическим уровнем поддержки на восходящем тренде и сопротивления на нисходящем.<LineBreak/>
+                                • <Run FontWeight="Bold">Гистограмма объемов под свечами (Цветовая VSA-кодировка):</Run><LineBreak/>
+                                &#160;&#160;&#160;&#160;• <Run Foreground="#10B981">Зеленый / Красный:</Run> обычный рыночный объем в пределах нормы.<LineBreak/>
+                                &#160;&#160;&#160;&#160;• <Run Foreground="#38BDF8" FontWeight="Bold">Голубой (RVol &gt; 1.5x):</Run> повышенная активность участников, появление крупного интереса.<LineBreak/>
+                                &#160;&#160;&#160;&#160;• <Run Foreground="#FBBF24" FontWeight="Bold">Золотой (RVol &gt; 2.2x):</Run> аномальный всплеск объема (пробой уровня или вход крупного игрока).<LineBreak/>
+                                &#160;&#160;&#160;&#160;• <Run Foreground="#F97316" FontWeight="Bold">Оранжевый:</Run> VSA-поглощение объема лимитными заявками.<LineBreak/>
+                                &#160;&#160;&#160;&#160;• <Run Foreground="#FBBF24">Золотая пунктирная линия:</Run> историческая норма объема для данной конкретной минуты суток.<LineBreak/>
+                                • <Run FontWeight="Bold">Горизонтальный профиль объема дня (справа):</Run> показывает, на каких ценовых уровнях за сегодня прошло больше всего сделок.<LineBreak/>
+                                • <Run Foreground="#FBBF24" FontWeight="Bold">Уровень POC (Point of Control, золотая полоса с меткой POC):</Run> цена максимального объема дня. Это сильнейший гравитационный уровень: к нему цена стремится вернуться при флэте, а при пробое он становится мощной защитой для тренда.<LineBreak/>
+                                • <Run FontWeight="Bold" Foreground="#F8FAFC">Интерактивный тултип при наведении мыши:</Run> при наведении на любую свечу появляется перекрестие и всплывающее окно со всеми деталями бара: точное время, цена Close, размах, объем, RVol, сделки, средний чек, VSA-статус, дельта ОИ и VWAP.
+                            </TextBlock>
+
+                            <TextBlock Text="Как применять при торговле:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                • Если цена находится выше POC и выше VWAP — торгуем только в лонг. Любые откаты к POC или VWAP используем как возможность для покупки.<LineBreak/>
+                                • Если на свече появился золотой или оранжевый объем, но цена уперлась в уровень и не идет дальше — это признак поглощения лимитным игроком, ждите отката.
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- SECTION 13: INTRADAY PACE CHART -->
+                    <Border x:Name="Sec13" Style="{StaticResource SectionBorder}">
+                        <StackPanel>
+                            <TextBlock Text="12. ГРАФИК ТЕМПА ДНЯ (ИНТРАДЕЙ PACE CHART)" FontSize="16" FontWeight="Bold" Foreground="#38BDF8" />
+
+                            <!-- Image -->
+                            <Border Style="{StaticResource ImageContainerBorder}">
+                                <Image x:Name="ImgPaceChart" MaxHeight="220" Stretch="Uniform" />
+                            </Border>
+
+                            <TextBlock Text="Что здесь изображено:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                График сравнивает фактическую траекторию накопления объема сегодня с эталонной исторической траекторией среднего торгового дня по этому инструменту.
+                            </TextBlock>
+
+                            <TextBlock Text="Две кривые на графике:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                • <Run Foreground="#38BDF8" FontWeight="Bold">Сплошная бирюзовая линия:</Run> реальный накопленный объем контрактов с открытия сессии сегодня.<LineBreak/>
+                                • <Run Foreground="#FBBF24" FontWeight="Bold">Пунктирная золотая линия:</Run> исторический средний темп набора объема для текущего времени суток.<LineBreak/>
+                                • <Run FontWeight="Bold">Всплывающая подсказка:</Run> при наведении мыши показывает точные значения на любую минуту (например: «Сегодня: 129,917 к. | Норма: 142,300 к. (-9%)»).
+                            </TextBlock>
+
+                            <TextBlock Text="Как это помогает при торговле:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                • <Run Foreground="#10B981" FontWeight="Bold">Бирюзовая линия идет круто ВЫШЕ пунктира (+15%...+40%):</Run> В рынке повышенная ликвидность, торгуют фонды и алгоритмы. Это идеальный трендовый день, пробои работают надежно.<LineBreak/>
+                                • <Run Foreground="#94A3B8" FontWeight="Bold">Бирюзовая линия отстает НИЖЕ пунктира (-20%...-40%):</Run> Рынок безынициативный и сонный. Торговать пробои нельзя — лучше брать отскоки от границ утреннего диапазона.
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- SECTION 14: OPEN INTEREST CHART -->
+                    <Border x:Name="Sec14" Style="{StaticResource SectionBorder}">
+                        <StackPanel>
+                            <TextBlock Text="13. ГРАФИК КУМУЛЯТИВНОГО ОТКРЫТОГО ИНТЕРЕСА (ОИ)" FontSize="16" FontWeight="Bold" Foreground="#38BDF8" />
+
+                            <!-- Image -->
+                            <Border Style="{StaticResource ImageContainerBorder}">
+                                <Image x:Name="ImgOiChart" MaxHeight="220" Stretch="Uniform" />
+                            </Border>
+
+                            <TextBlock Text="Что здесь изображено:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                График показывает суммарный приток или отток капитала в открытые позиции с начала сессии в виде плавной фиолетовой линии относительно пунктирной нулевой оси.
+                            </TextBlock>
+
+                            <TextBlock Text="Элементы графика:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                • <Run Foreground="#A855F7" FontWeight="Bold">Фиолетовая кривая ОИ:</Run> текущее сальдо открытых контрактов с начала дня.<LineBreak/>
+                                • <Run Foreground="#94A3B8">Пунктирная горизонтальная линия (0):</Run> уровень открытия дня (до притока новых позиций).<LineBreak/>
+                                • <Run FontWeight="Bold">Всплывающий тултип:</Run> при наведении курсора показывает накопленный ОИ дня и дельту за эту конкретную минуту (например: «Накопл. ОИ: +28,628 к. (минута: -6)»).
+                            </TextBlock>
+
+                            <TextBlock Text="Главные практические сигналы:" Style="{StaticResource SubSectionHeader}" />
+                            <TextBlock Style="{StaticResource BodyText}">
+                                • <Run Foreground="#10B981" FontWeight="Bold">Кривая ОИ резко устремилась ВВЕРХ вместе с ростом цены:</Run> Сильнейший бычий сигнал. В позицию заходят новые крупные покупатели, тренд имеет фундамент и поддержку.<LineBreak/>
+                                • <Run Foreground="#EF4444" FontWeight="Bold">Кривая ОИ РАСТЕТ на фоне падения цены:</Run> Набор шортов крупными операторами. Продажи истинные, шортить безопасно.<LineBreak/>
+                                • <Run Foreground="#FBBF24" FontWeight="Bold">Дивергенция (Цена растет, а ОИ ПАДАЕТ):</Run> Рост идет на стопах продавцов. Новых денег нет. Ожидайте резкого завершения роста и разворота вниз.
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
                     <!-- SECTION 11: GOLDEN RULES -->
                     <Border x:Name="Sec11" Style="{StaticResource SectionBorder}" BorderBrush="#FBBF24">
                         <StackPanel>
-                            <TextBlock Text="11. ЧЕК-ЛИСТ ДЛЯ СОВЕРШЕНИЯ СДЕЛКИ (ПРАВИЛА УСПЕХА)" FontSize="16" FontWeight="Bold" Foreground="#FBBF24" />
+                            <TextBlock Text="14. ЧЕК-ЛИСТ ДЛЯ СОВЕРШЕНИЯ СДЕЛКИ (ПРАВИЛА УСПЕХА)" FontSize="16" FontWeight="Bold" Foreground="#FBBF24" />
                             <TextBlock Style="{StaticResource BodyText}" Margin="0,8,0,0">
-                                1. <Run FontWeight="Bold" Foreground="#F8FAFC">Определите общий фон дня:</Run> посмотрите на карточку Дневного объема. Если объем выше нормы времени (+20% и более) — торгуйте смело, тренд сильный. Если объем низкий — осторожно, рынок во флэте.<LineBreak/>
-                                2. <Run FontWeight="Bold" Foreground="#F8FAFC">Проверьте положение к VWAP:</Run> торгуйте преимущественно в ту сторону, где находится цена относительно линии VWAP дня.<LineBreak/>
-                                3. <Run FontWeight="Bold" Foreground="#F8FAFC">Следите за Открытым Интересом:</Run> движение на растущем ОИ — истинное. Движение на падающем ОИ — ложное (шортокрыл или сброс лонгов).<LineBreak/>
-                                4. <Run FontWeight="Bold" Foreground="#F8FAFC">Обращайте внимание на VSA-поглощения:</Run> если на поддержке загорелось «Бычье поглощение» — рынок защищают, падение окончено.<LineBreak/>
-                                5. <Run FontWeight="Bold" Foreground="#F8FAFC">Входите при согласии двух столбцов прогноза</Run> или при возобновлении тренда после отката!
+                                1. <Run FontWeight="Bold" Foreground="#F8FAFC">Определите общий фон дня:</Run> посмотрите на график темпа дня. Если объем выше нормы (+20% и более) — торгуйте смело, тренд сильный. Если объем низкий — осторожно, рынок во флэте.<LineBreak/>
+                                2. <Run FontWeight="Bold" Foreground="#F8FAFC">Проверьте положение к VWAP и POC:</Run> торгуйте преимущественно в ту сторону, где находится цена относительно линии VWAP и уровня максимального объема POC.<LineBreak/>
+                                3. <Run FontWeight="Bold" Foreground="#F8FAFC">Следите за графиком Открытого Интереса:</Run> движение на растущем ОИ — истинное. Движение на падающем ОИ — ложное (шортокрыл или сброс лонгов).<LineBreak/>
+                                4. <Run FontWeight="Bold" Foreground="#F8FAFC">Обращайте внимание на VSA-поглощения:</Run> если на поддержке появился оранжевый объем поглощения — падение остановлено лимитным покупателем.<LineBreak/>
+                                5. <Run FontWeight="Bold" Foreground="#F8FAFC">Входите при согласии двух столбцов прогноза</Run> или при возобновлении импульса после отката!
                             </TextBlock>
                         </StackPanel>
                     </Border>

@@ -20,32 +20,27 @@
         <vm:SignedNumberConverter x:Key="SignedNumberConverter" />
         <vm:HexToBrushConverter x:Key="HexToBrushConverter" />
 
-        <!-- Стилизация вкладок переключения видов (Графика vs Таблица) -->
-        <Style TargetType="TabControl">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="0" />
-        </Style>
-
-        <Style TargetType="TabItem">
+        <!-- Стилизация переключателей видов: Графики vs Таблица (Segmented Buttons) -->
+        <Style x:Key="SegmentedTabRadio" TargetType="RadioButton">
             <Setter Property="Background" Value="#1E293B" />
             <Setter Property="Foreground" Value="#94A3B8" />
             <Setter Property="FontSize" Value="12" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Padding" Value="14,6" />
-            <Setter Property="Margin" Value="0,0,4,0" />
+            <Setter Property="Padding" Value="16,6" />
+            <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="TabItem">
-                        <Border x:Name="TabBorder" Background="{TemplateBinding Background}" CornerRadius="6,6,0,0" 
-                                BorderBrush="#334155" BorderThickness="1,1,1,0" Padding="{TemplateBinding Padding}">
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="TabBorder" Background="{TemplateBinding Background}" CornerRadius="6" 
+                                BorderBrush="#334155" BorderThickness="1" Padding="{TemplateBinding Padding}" Margin="0,0,8,0">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
+                            <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="TabBorder" Property="Background" Value="#0F172A" />
                                 <Setter TargetName="TabBorder" Property="BorderBrush" Value="#38BDF8" />
                                 <Setter Property="Foreground" Value="#38BDF8" />
+                                <Setter Property="FontWeight" Value="Bold" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="TabBorder" Property="Background" Value="#334155" />
@@ -590,118 +585,142 @@
             </Border>
         </Grid>
 
-        <!-- ROW 4: TABBED VIEW (CHARTS & FLOW TABLE) -->
-        <TabControl Grid.Row="4" Margin="4,2,4,4">
+        <!-- ROW 4: SEGMENTED VIEW SWITCHER + CONTENT CONTAINER -->
+        <Grid Grid.Row="4" Margin="4,2,4,4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />  <!-- Switcher Buttons Bar -->
+                <RowDefinition Height="*" />     <!-- Selected Content Area -->
+            </Grid.RowDefinitions>
 
-            <!-- TAB 1: GRAPHICAL ANALYSIS DASHBOARD -->
-            <TabItem Header="📊 Графический анализ (Свечи, VWAP, Профиль объема, ОИ, Темп дня)">
-                <Grid Margin="0,4,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="2.1*" />  <!-- Main Candlestick Chart + VWAP + Volume Profile -->
-                        <RowDefinition Height="1*" />    <!-- Subcharts: Pace & Cumulative OI -->
-                    </Grid.RowDefinitions>
+            <!-- SWITCHER BAR (КРУПНЫЕ ЧЕТКИЕ ВКЛАДКИ-ПЕРЕКЛЮЧАТЕЛИ) -->
+            <Border Grid.Row="0" Background="#1E293B" CornerRadius="8" Padding="10,6" Margin="0,0,0,6" BorderBrush="#334155" BorderThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                    <!-- Top Chart: Candlesticks + Volume + Volume Profile -->
-                    <Border Grid.Row="0" Background="#1E293B" CornerRadius="8" Padding="4" Margin="0,0,0,4" BorderBrush="#334155" BorderThickness="1">
-                        <controls:TradingChartControl Bars="{Binding AllDayBars}" 
-                                                      VolumeProfile="{Binding VolumeProfileLevels}" />
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <RadioButton Content="📊 Графический анализ (Свечи, VWAP, Профиль объема, ОИ, Темп дня)" 
+                                     IsChecked="{Binding IsChartsTabSelected, Mode=TwoWay}"
+                                     Style="{StaticResource SegmentedTabRadio}" />
+                        <RadioButton Content="📋 Таблица потока минутных баров" 
+                                     IsChecked="{Binding IsTableTabSelected, Mode=TwoWay}"
+                                     Style="{StaticResource SegmentedTabRadio}" />
+                    </StackPanel>
+
+                    <TextBlock Grid.Column="2" Text="Кликните на вкладку для переключения вида" 
+                               Foreground="#64748B" FontSize="11" VerticalAlignment="Center" FontStyle="Italic" Margin="0,0,8,0" />
+                </Grid>
+            </Border>
+
+            <!-- VIEW 1: CHARTS (Visible when IsChartsTabSelected == true) -->
+            <Grid Grid.Row="1" Visibility="{Binding IsChartsTabSelected, Converter={StaticResource BoolToVis}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2.1*" />  <!-- Main Candlestick Chart + VWAP + Volume Profile -->
+                    <RowDefinition Height="1*" />    <!-- Subcharts: Pace & Cumulative OI -->
+                </Grid.RowDefinitions>
+
+                <!-- Top Chart: Candlesticks + Volume + Volume Profile -->
+                <Border Grid.Row="0" Background="#1E293B" CornerRadius="8" Padding="4" Margin="0,0,0,4" BorderBrush="#334155" BorderThickness="1">
+                    <controls:TradingChartControl Bars="{Binding AllDayBars}" 
+                                                  VolumeProfile="{Binding VolumeProfileLevels}" />
+                </Border>
+
+                <!-- Bottom Split Charts: Intraday Pace & Open Interest -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left: Intraday Pace (Сегодня vs Норма) -->
+                    <Border Grid.Column="0" Background="#1E293B" CornerRadius="8" Padding="4" Margin="0,0,2,0" BorderBrush="#334155" BorderThickness="1">
+                        <controls:IntradayPaceChartControl Bars="{Binding AllDayBars}" 
+                                                           Benchmarks="{Binding BenchmarksDictionary}" />
                     </Border>
 
-                    <!-- Bottom Split Charts: Intraday Pace & Open Interest -->
-                    <Grid Grid.Row="1">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Left: Intraday Pace (Сегодня vs Норма) -->
-                        <Border Grid.Column="0" Background="#1E293B" CornerRadius="8" Padding="4" Margin="0,0,2,0" BorderBrush="#334155" BorderThickness="1">
-                            <controls:IntradayPaceChartControl Bars="{Binding AllDayBars}" 
-                                                               Benchmarks="{Binding BenchmarksDictionary}" />
-                        </Border>
-
-                        <!-- Right: Cumulative Open Interest -->
-                        <Border Grid.Column="1" Background="#1E293B" CornerRadius="8" Padding="4" Margin="2,0,0,0" BorderBrush="#334155" BorderThickness="1">
-                            <controls:OpenInterestChartControl Bars="{Binding AllDayBars}" />
-                        </Border>
-                    </Grid>
+                    <!-- Right: Cumulative Open Interest -->
+                    <Border Grid.Column="1" Background="#1E293B" CornerRadius="8" Padding="4" Margin="2,0,0,0" BorderBrush="#334155" BorderThickness="1">
+                        <controls:OpenInterestChartControl Bars="{Binding AllDayBars}" />
+                    </Border>
                 </Grid>
-            </TabItem>
+            </Grid>
 
-            <!-- TAB 2: DETAILED FLOW DATA GRID -->
-            <TabItem Header="📋 Таблица потока минутных баров">
-                <Border Background="#1E293B" CornerRadius="8" Padding="6" Margin="0,4,0,0" BorderBrush="#334155" BorderThickness="1">
-                    <DataGrid ItemsSource="{Binding RecentBars}" 
-                              AutoGenerateColumns="False" 
-                              IsReadOnly="True"
-                              Background="Transparent"
-                              RowBackground="#1E293B"
-                              AlternatingRowBackground="#182234"
-                              Foreground="#F8FAFC"
-                              BorderThickness="0"
-                              GridLinesVisibility="Horizontal"
-                              HorizontalGridLinesBrush="#334155"
-                              HeadersVisibility="Column"
-                              SelectionMode="Single"
-                              CanUserSortColumns="False"
-                              CanUserReorderColumns="False"
-                              CanUserResizeRows="False">
+            <!-- VIEW 2: FLOW TABLE (Visible when IsTableTabSelected == true) -->
+            <Border Grid.Row="1" Visibility="{Binding IsTableTabSelected, Converter={StaticResource BoolToVis}}"
+                    Background="#1E293B" CornerRadius="8" Padding="6" BorderBrush="#334155" BorderThickness="1">
+                <DataGrid ItemsSource="{Binding RecentBars}" 
+                          AutoGenerateColumns="False" 
+                          IsReadOnly="True"
+                          Background="Transparent"
+                          RowBackground="#1E293B"
+                          AlternatingRowBackground="#182234"
+                          Foreground="#F8FAFC"
+                          BorderThickness="0"
+                          GridLinesVisibility="Horizontal"
+                          HorizontalGridLinesBrush="#334155"
+                          HeadersVisibility="Column"
+                          SelectionMode="Single"
+                          CanUserSortColumns="False"
+                          CanUserReorderColumns="False"
+                          CanUserResizeRows="False">
 
-                        <DataGrid.ColumnHeaderStyle>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="Background" Value="#0F172A" />
-                                <Setter Property="Foreground" Value="#94A3B8" />
-                                <Setter Property="FontSize" Value="11" />
-                                <Setter Property="FontWeight" Value="SemiBold" />
-                                <Setter Property="Padding" Value="8,6" />
-                                <Setter Property="BorderBrush" Value="#334155" />
-                                <Setter Property="BorderThickness" Value="0,0,0,1" />
-                            </Style>
-                        </DataGrid.ColumnHeaderStyle>
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="#0F172A" />
+                            <Setter Property="Foreground" Value="#94A3B8" />
+                            <Setter Property="FontSize" Value="11" />
+                            <Setter Property="FontWeight" Value="SemiBold" />
+                            <Setter Property="Padding" Value="8,6" />
+                            <Setter Property="BorderBrush" Value="#334155" />
+                            <Setter Property="BorderThickness" Value="0,0,0,1" />
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
 
-                        <DataGrid.RowStyle>
-                            <Style TargetType="DataGridRow">
-                                <Setter Property="Height" Value="24" />
-                                <Setter Property="FontSize" Value="11" />
-                            </Style>
-                        </DataGrid.RowStyle>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Height" Value="24" />
+                            <Setter Property="FontSize" Value="11" />
+                        </Style>
+                    </DataGrid.RowStyle>
 
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="ВРЕМЯ" Binding="{Binding Time}" Width="75" />
-                            <DataGridTextColumn Header="OPEN" Binding="{Binding Open, StringFormat='{}{0:F1}'}" Width="65" />
-                            <DataGridTextColumn Header="HIGH" Binding="{Binding High, StringFormat='{}{0:F1}'}" Width="65" />
-                            <DataGridTextColumn Header="LOW" Binding="{Binding Low, StringFormat='{}{0:F1}'}" Width="65" />
-                            <DataGridTextColumn Header="CLOSE" Binding="{Binding Close, StringFormat='{}{0:F1}'}" Width="65" FontWeight="SemiBold" />
-                            <DataGridTextColumn Header="ДИАПАЗОН" Binding="{Binding PriceRange, StringFormat='{}{0:F1}'}" Width="75" />
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ВРЕМЯ" Binding="{Binding Time}" Width="75" />
+                        <DataGridTextColumn Header="OPEN" Binding="{Binding Open, StringFormat='{}{0:F1}'}" Width="65" />
+                        <DataGridTextColumn Header="HIGH" Binding="{Binding High, StringFormat='{}{0:F1}'}" Width="65" />
+                        <DataGridTextColumn Header="LOW" Binding="{Binding Low, StringFormat='{}{0:F1}'}" Width="65" />
+                        <DataGridTextColumn Header="CLOSE" Binding="{Binding Close, StringFormat='{}{0:F1}'}" Width="65" FontWeight="SemiBold" />
+                        <DataGridTextColumn Header="ДИАПАЗОН" Binding="{Binding PriceRange, StringFormat='{}{0:F1}'}" Width="75" />
 
-                            <!-- Volume & Benchmark -->
-                            <DataGridTextColumn Header="ОБЪЕМ" Binding="{Binding Volume, StringFormat='{}{0:N0}'}" Width="70" FontWeight="Bold" />
-                            <DataGridTextColumn Header="НОРМА ВРЕМЕНИ" Binding="{Binding BenchmarkAvgVolume, StringFormat='{}{0:N0}'}" Width="95" Foreground="#94A3B8" />
-                            <DataGridTextColumn Header="RVOL" Binding="{Binding RVol, StringFormat='{}{0:F2}x'}" Width="65" FontWeight="Bold" Foreground="#38BDF8" />
+                        <!-- Volume & Benchmark -->
+                        <DataGridTextColumn Header="ОБЪЕМ" Binding="{Binding Volume, StringFormat='{}{0:N0}'}" Width="70" FontWeight="Bold" />
+                        <DataGridTextColumn Header="НОРМА ВРЕМЕНИ" Binding="{Binding BenchmarkAvgVolume, StringFormat='{}{0:N0}'}" Width="95" Foreground="#94A3B8" />
+                        <DataGridTextColumn Header="RVOL" Binding="{Binding RVol, StringFormat='{}{0:F2}x'}" Width="65" FontWeight="Bold" Foreground="#38BDF8" />
 
-                            <!-- Trades & Size -->
-                            <DataGridTextColumn Header="СДЕЛКИ" Binding="{Binding TradesCount}" Width="65" />
-                            <DataGridTextColumn Header="СР. РАЗМЕР" Binding="{Binding AvgTradeSize, StringFormat='{}{0:F2}'}" Width="75" />
+                        <!-- Trades & Size -->
+                        <DataGridTextColumn Header="СДЕЛКИ" Binding="{Binding TradesCount}" Width="65" />
+                        <DataGridTextColumn Header="СР. РАЗМЕР" Binding="{Binding AvgTradeSize, StringFormat='{}{0:F2}'}" Width="75" />
 
-                            <!-- Open Interest -->
-                            <DataGridTextColumn Header="ОИ ДЕЛЬТА" Binding="{Binding OpenInterestChange, Converter={StaticResource SignedNumberConverter}}" Width="80" FontWeight="SemiBold" />
+                        <!-- Open Interest -->
+                        <DataGridTextColumn Header="ОИ ДЕЛЬТА" Binding="{Binding OpenInterestChange, Converter={StaticResource SignedNumberConverter}}" Width="80" FontWeight="SemiBold" />
 
-                            <!-- VSA Effort vs Result Tag -->
-                            <DataGridTemplateColumn Header="VSA УСИЛИЕ / РЕЗУЛЬТАТ" Width="*">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Border Background="{Binding EffortResultColor, Converter={StaticResource HexToBrushConverter}}" 
-                                                CornerRadius="4" Padding="6,2" HorizontalAlignment="Left" Margin="2,1">
-                                            <TextBlock Text="{Binding EffortResultTag}" FontSize="10" FontWeight="Bold" Foreground="#FFFFFF" />
-                                        </Border>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Border>
-            </TabItem>
-        </TabControl>
+                        <!-- VSA Effort vs Result Tag -->
+                        <DataGridTemplateColumn Header="VSA УСИЛИЕ / РЕЗУЛЬТАТ" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Background="{Binding EffortResultColor, Converter={StaticResource HexToBrushConverter}}" 
+                                            CornerRadius="4" Padding="6,2" HorizontalAlignment="Left" Margin="2,1">
+                                        <TextBlock Text="{Binding EffortResultTag}" FontSize="10" FontWeight="Bold" Foreground="#FFFFFF" />
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+        </Grid>
 
         <!-- ROW 5: STATUS BAR -->
         <Border Grid.Row="5" Background="#0F172A" Padding="8,4" Margin="4,2,4,0">

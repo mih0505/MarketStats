@@ -174,6 +174,41 @@ public class MainViewModel : BaseViewModel
         }
     }
 
+    private bool _isChartsTabSelected = true;
+    private bool _isTableTabSelected = false;
+
+    /// <summary>
+    /// Флаг отображения вкладки графического анализа.
+    /// </summary>
+    public bool IsChartsTabSelected
+    {
+        get => _isChartsTabSelected;
+        set
+        {
+            if (SetProperty(ref _isChartsTabSelected, value))
+            {
+                _isTableTabSelected = !value;
+                OnPropertyChanged(nameof(IsTableTabSelected));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Флаг отображения детальной таблицы минутных баров.
+    /// </summary>
+    public bool IsTableTabSelected
+    {
+        get => _isTableTabSelected;
+        set
+        {
+            if (SetProperty(ref _isTableTabSelected, value))
+            {
+                _isChartsTabSelected = !value;
+                OnPropertyChanged(nameof(IsChartsTabSelected));
+            }
+        }
+    }
+
     /// <summary>
     /// Флаг активности режима живого слежения за файлами QUIK.
     /// </summary>

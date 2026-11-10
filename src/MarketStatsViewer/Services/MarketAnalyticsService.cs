@@ -323,14 +323,23 @@ public class MarketAnalyticsService
         double mom15 = last.Close - bars15[0].Open;
         double oiDelta15 = bars15.Sum(b => b.OpenInterestChange ?? 0.0);
         double avgRvol15 = bars15.Count > 0 ? bars15.Average(b => b.RVol) : 1.0;
-        double vwapDist = last.Close - last.VWAP;
+
+        // Защита и санитаризация VWAP (если на баре VWAP еще не успел посчитаться, берем последний валидный)
+        double effectiveVwap = last.VWAP;
+        if (effectiveVwap <= 0)
+        {
+            var barWithVwap = liveBars.LastOrDefault(b => b.VWAP > 0);
+            if (barWithVwap != null) effectiveVwap = barWithVwap.VWAP;
+            else effectiveVwap = last.Close;
+        }
+        double vwapDist = last.Close - effectiveVwap;
 
         // Поиск исторических аналогов с фильтром по направлению
         bool? momDir = Math.Abs(mom5) >= (atr15 * 0.5) ? (mom5 > 0) : null;
         var historicalMatches = QueryHistoricalAnalogs(secCode, currentSessionId, last.Time, momDir ?? (mom15 > 0), avgRvol15 > 1.2);
 
         // --- 1. Short-Term Forecast (5-15 min) ---
-        CalculateShortTerm(shortTerm, last, mom5, mom15, oiDelta15, avgRvol15, atr15, effortAnalysis, historicalMatches);
+        CalculateShortTerm(shortTerm, last, mom5, mom15, oiDelta15, avgRvol15, atr15, vwapDist, effortAnalysis, historicalMatches);
 
         // --- 2. Medium-Term Forecast (30-60 min) ---
         CalculateMediumTerm(mediumTerm, liveBars, last, vwapDist, atr15, oiDelta15, avgRvol15, historicalMatches);
@@ -346,6 +355,7 @@ public class MarketAnalyticsService
         double oiDelta15,
         double avgRvol15,
         double atr15,
+        double vwapDist,
         EffortResultAnalysis effort,
         List<HistoricalAnalogResult> analogs)
     {
@@ -403,7 +413,6 @@ public class MarketAnalyticsService
         }
 
         // 3. Положение цены относительно VWAP
-        double vwapDist = last.Close - last.VWAP;
         if (vwapDist > (atr15 * 0.5))
         {
             score += 15;

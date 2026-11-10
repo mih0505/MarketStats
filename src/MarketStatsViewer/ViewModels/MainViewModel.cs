@@ -483,13 +483,32 @@ public class MainViewModel : BaseViewModel
             // Проверяем, относится ли liveBar к текущей или новой минуте по отношению к закрытой истории
             if (string.Compare(liveBar.Time, lastDb.Time, StringComparison.Ordinal) >= 0)
             {
+                MinuteBar prevClosedBar = (_loadedDbBars.Count > 1 && lastDb.Time == liveBar.Time)
+                    ? _loadedDbBars[^2]
+                    : lastDb;
+
+                liveBar.CumulativeVolume = prevClosedBar.CumulativeVolume + liveBar.Volume;
+                liveBar.CumulativeTrades = prevClosedBar.CumulativeTrades + liveBar.TradesCount;
+                liveBar.CumulativeTurnover = prevClosedBar.CumulativeTurnover + liveBar.Turnover;
+                liveBar.CumulativeOiChange = prevClosedBar.CumulativeOiChange + (liveBar.OpenInterestChange ?? 0.0);
+
+                // Расчет непрерывного VWAP дня с учетом объема текущего бара
+                double prevMoneyVol = prevClosedBar.CumulativeVolume * (prevClosedBar.VWAP > 0 ? prevClosedBar.VWAP : prevClosedBar.Close);
+                double liveMoneyVol = liveBar.Close * liveBar.Volume;
+                double totalVol = liveBar.CumulativeVolume;
+                liveBar.VWAP = totalVol > 0
+                    ? Math.Round((prevMoneyVol + liveMoneyVol) / totalVol, 1)
+                    : (prevClosedBar.VWAP > 0 ? prevClosedBar.VWAP : liveBar.Close);
+
+                DayVwap = liveBar.VWAP;
+
                 if (_loadedBenchmarks.TryGetValue(liveBar.Time, out var bm) && bm.AvgVolume > 0)
                 {
                     liveBar.BenchmarkAvgVolume = bm.AvgVolume;
                     liveBar.RVol = Math.Round(liveBar.Volume / bm.AvgVolume, 2);
                     if (bm.AvgCumulativeVolume > 0)
                     {
-                        liveBar.CumRVol = Math.Round((lastDb.CumulativeVolume + liveBar.Volume) / bm.AvgCumulativeVolume, 2);
+                        liveBar.CumRVol = Math.Round(liveBar.CumulativeVolume / bm.AvgCumulativeVolume, 2);
                     }
                 }
                 else
@@ -501,10 +520,6 @@ public class MainViewModel : BaseViewModel
                 liveBar.DataStatus = "LIVE ⏳";
                 liveBar.EffortResultTag = "Формируется...";
                 liveBar.EffortResultColor = "#0284C7";
-                liveBar.CumulativeVolume = lastDb.CumulativeVolume + liveBar.Volume;
-                liveBar.CumulativeTrades = lastDb.CumulativeTrades + liveBar.TradesCount;
-                liveBar.CumulativeTurnover = lastDb.CumulativeTurnover + liveBar.Turnover;
-                liveBar.CumulativeOiChange = lastDb.CumulativeOiChange + (liveBar.OpenInterestChange ?? 0.0);
 
                 // Мгновенное обновление цен и объемов в карточках
                 LastPrice = liveBar.Close;
@@ -518,6 +533,26 @@ public class MainViewModel : BaseViewModel
                 CurrentRVol = liveBar.RVol;
                 CumulativeRVol = liveBar.CumRVol;
                 LastUpdateTime = $"{liveBar.LastTradeTime} (live)";
+
+                // Сравнение дневного объема со средней нормой за полный день
+                if (DailyBenchmark.AvgFullDayVolume > 0)
+                {
+                    double pctOfDay = (liveBar.CumulativeVolume / DailyBenchmark.AvgFullDayVolume) * 100.0;
+                    string diffSign = liveBar.CumRVol >= 1.0 ? "+" : "";
+                    double rvolPct = (liveBar.CumRVol - 1.0) * 100.0;
+                    VolumeComparisonText = $"Норма дня: {DailyBenchmark.AvgFullDayVolume:N0} к. ({pctOfDay:F0}% проторговано) | К норме времени: {diffSign}{rvolPct:F0}%";
+                }
+
+                // Сравнение числа сделок и среднего размера чека
+                if (DailyBenchmark.AvgFullDayTrades > 0)
+                {
+                    double currentAvgSize = liveBar.AvgTradeSize > 0 ? liveBar.AvgTradeSize : (liveBar.CumulativeTrades > 0 ? liveBar.CumulativeVolume / liveBar.CumulativeTrades : 1.0);
+                    double sizeDiffPct = DailyBenchmark.TypicalAvgTradeSize > 0
+                        ? ((currentAvgSize - DailyBenchmark.TypicalAvgTradeSize) / DailyBenchmark.TypicalAvgTradeSize) * 100.0
+                        : 0;
+                    string sizeSign = sizeDiffPct >= 0 ? "+" : "";
+                    TradesComparisonText = $"Ср. чек: {currentAvgSize:F2} к./сд. (норма {DailyBenchmark.TypicalAvgTradeSize:F2}, {sizeSign}{sizeDiffPct:F0}%) | Норма дня: {DailyBenchmark.AvgFullDayTrades:N0} сдел.";
+                }
 
                 // Обновление таблицы потока: текущий бар всегда на самом верху
                 if (RecentBars.Count > 0 && RecentBars[0].DataStatus.StartsWith("LIVE"))
